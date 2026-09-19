@@ -1,0 +1,11 @@
+CORRECCIÓN FINAL — CALISTENIA MILITAR
+
+Sube a la raíz del repositorio y reemplaza los archivos existentes:
+1) d0_e4.webp
+2) sw.js
+
+Después confirma los cambios en GitHub, espera a que Vercel despliegue,
+cierra completamente la app Calistenia Militar y vuelve a abrirla.
+
+El nuevo sw.js elimina la caché antigua y usa red primero, para que futuras
+actualizaciones de imágenes y diseño se reflejen correctamente.
