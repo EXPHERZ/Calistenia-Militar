@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f3a28">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>Calistenia Militar · 45 MIN</title>
+<style>
+:root{--bg:#0e1712;--panel:#17251c;--card:#f5f6f2;--ink:#112017;--muted:#59625c;--accent:#4e9c46;--line:#ccd4cd;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#0c1710,#14231a);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#eef4ed}
+.app{max-width:860px;margin:auto;padding:14px 14px 36px}.hero{border:1px solid #38513f;background:linear-gradient(135deg,#203d29,#101a14);padding:18px;border-radius:22px}
+.hero h1{margin:2px 0 3px;font-size:clamp(26px,7vw,48px);line-height:.95;letter-spacing:.02em}.kicker{font-size:12px;letter-spacing:.19em;opacity:.76}.sub{opacity:.78}
+.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.btn,.day{border:1px solid #4b5d50;background:#1b2a20;color:#f2f6f1;border-radius:14px;min-height:48px;padding:10px 12px;font-weight:700;font-size:15px}
+.btn.active,.day.active,.btn.primary{background:var(--accent);border-color:#82cd75;color:white}.days{display:flex;gap:8px;overflow:auto;padding-bottom:5px;margin:14px 0}.day{min-width:67px}
+.session{padding:15px;border:1px solid #415248;background:#192820;border-radius:18px;margin-bottom:12px}.session h2{margin:0 0 4px;font-size:20px}.session p{margin:0;opacity:.74}
+.list{display:grid;gap:12px}.exercise{background:var(--card);color:var(--ink);border-radius:18px;padding:12px;border:1px solid #dbe1dc;overflow:hidden}.exercise.done{opacity:.58}.row{display:grid;grid-template-columns:minmax(220px,320px) 1fr;gap:14px;align-items:center}.photo{width:100%;aspect-ratio:13/7;object-fit:contain;background:white;border-radius:13px;border:1px solid #e1e5e2}
+.ex-title{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ex-title h3{margin:0;font-size:20px}.reps{font-size:17px;font-weight:900;margin:5px 0}.tech{color:var(--muted);font-size:14px;line-height:1.35}.donebox{display:flex;gap:7px;align-items:center;font-size:14px;white-space:nowrap}.donebox input{width:22px;height:22px;accent-color:var(--accent)}
+.panel{background:#17251c;border:1px solid #3d5044;border-radius:18px;padding:15px;margin-top:14px}.progress-head{display:flex;justify-content:space-between;font-weight:800}.track{height:13px;border-radius:999px;background:#364239;overflow:hidden;margin-top:9px}.fill{height:100%;background:var(--accent);width:0;transition:width .2s}
+.timer-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.clock{font-size:42px;font-weight:950;font-variant-numeric:tabular-nums}.presets,.timer-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.timer-actions{grid-template-columns:1fr 1fr}.small{font-size:13px;opacity:.7}
+.install{margin-top:14px;display:none;width:100%}.resetday{margin-top:10px;width:100%}
+.footer{font-size:12px;opacity:.68;text-align:center;margin-top:20px;line-height:1.4}
+@media(max-width:650px){.row{grid-template-columns:1fr}.photo{max-height:240px}.toolbar{grid-template-columns:1fr 1fr}.app{padding:10px 10px 28px}.exercise{padding:10px}.ex-title h3{font-size:18px}.clock{font-size:36px}}
+@media(prefers-reduced-motion:reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+<main class="app">
+<section class="hero">
+  <div class="kicker">ENTRENA EN CASA · SOLO PESO CORPORAL</div>
+  <h1>CALISTENIA<br>MILITAR</h1>
+  <div class="sub">40–45 min · nivel básico/intermedio · progreso guardado en el móvil</div>
+</section>
+
+<div class="days" id="days"></div>
+<div class="toolbar">
+  <button class="btn active" data-level="basic">Básico</button>
+  <button class="btn" data-level="intermediate">Intermedio</button>
+</div>
+
+<section class="session" id="session"></section>
+<section class="list" id="list"></section>
+
+<section class="panel">
+  <div class="progress-head"><span>Progreso del entrenamiento</span><span id="pct">0%</span></div>
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <button class="btn resetday" id="resetDay">Reiniciar entrenamiento del día</button>
+</section>
+
+<section class="panel">
+  <div class="timer-top">
+    <div><strong>Temporizador de descanso</strong><div class="small">Entre series</div></div>
+    <div class="clock" id="clock">01:00</div>
+  </div>
+  <div class="presets">
+    <button class="btn" data-sec="30">30 s</button><button class="btn" data-sec="45">45 s</button>
+    <button class="btn active" data-sec="60">60 s</button><button class="btn" data-sec="90">90 s</button>
+  </div>
+  <div class="timer-actions"><button class="btn primary" id="start">▶ Iniciar</button><button class="btn" id="resetTimer">↻ Reiniciar</button></div>
+</section>
+
+<button class="btn primary install" id="install">Instalar Calistenia Militar</button>
+<div class="footer">Calienta 5 min antes de empezar. Prioriza la técnica. Si aparece dolor agudo, detén el ejercicio.</div>
+</main>
+
+<script>
+const DATA = {"1": {"title": "Lunes · Tren superior + core", "note": "Fuerza, pecho, brazos y abdomen", "items": [["Flexiones", "3 × 8–10", "4 × 10–12", "Mantén el cuerpo alineado. Baja el pecho con control."], ["Flexiones diamante", "3 × 6–8", "3 × 8–10", "Manos juntas bajo el pecho; controla los codos."], ["Fondos en silla", "3 × 8–10", "3 × 10–12", "Usa una silla firme apoyada contra la pared."], ["Plancha frontal", "3 × 30 s", "3 × 40 s", "Aprieta abdomen y glúteos, sin hundir la cadera."], ["Crunch bicicleta", "3 × 14", "3 × 20", "Alterna codo y rodilla contraria sin tirar del cuello."]]}, "2": {"title": "Martes · Piernas y glúteos", "note": "Fuerza del tren inferior", "items": [["Sentadillas", "3 × 12–15", "4 × 15–20", "Cadera atrás, rodillas alineadas y talones apoyados."], ["Zancadas", "3 × 10/pierna", "3 × 12/pierna", "Paso largo y torso erguido; baja con control."], ["Puente de glúteos", "3 × 12", "4 × 15", "Eleva la cadera y aprieta glúteos arriba."], ["Elevación de talones", "3 × 15", "4 × 20", "Sube a puntas y controla la bajada."], ["Sentadilla isométrica", "3 × 30 s", "3 × 45 s", "Espalda contra la pared; rodillas cerca de 90°."]]}, "3": {"title": "Miércoles · Cardio militar + abdomen", "note": "Resistencia y estabilidad", "items": [["Burpees", "3 × 6", "4 × 10", "Baja a plancha y vuelve arriba con un movimiento fluido."], ["Escaladores", "3 × 20 s", "4 × 30 s", "Rodillas alternas hacia el pecho manteniendo la cadera estable."], ["Jumping jacks", "3 × 20 s", "4 × 30 s", "Abre brazos y piernas a la vez; vuelve al centro."], ["Elevaciones de piernas", "3 × 10", "3 × 15", "Mantén la zona lumbar pegada al suelo."], ["Hollow hold", "3 × 20 s", "3 × 30 s", "Brazos y piernas elevados sin despegar la lumbar."]]}, "4": {"title": "Jueves · Tren superior volumen", "note": "Hombros, espalda y core", "items": [["Flexiones abiertas", "3 × 10", "4 × 12", "Manos algo más abiertas que los hombros."], ["Pike push-up", "3 × 6", "3 × 8–10", "Cadera alta; dirige la cabeza hacia el suelo."], ["Remo invertido", "3 × 6", "3 × 8–10", "Usa una mesa completamente estable."], ["Plancha lateral", "3 × 20 s/lado", "3 × 30 s/lado", "Mantén la cadera elevada y el tronco alineado."], ["Superman", "3 × 12", "3 × 15", "Eleva brazos y piernas suavemente, sin rebotes."]]}, "5": {"title": "Viernes · Piernas + resistencia", "note": "Potencia y resistencia muscular", "items": [["Sentadilla con salto", "3 × 8", "4 × 12", "Aterriza suave y estable antes de la siguiente repetición."], ["Zancadas caminando", "3 × 10/pierna", "3 × 12/pierna", "Alterna cada paso manteniendo el control."], ["Step-up", "3 × 10/pierna", "3 × 12/pierna", "Utiliza un apoyo bajo, firme y estable."], ["Wall sit", "3 × 40 s", "3 × 60 s", "Espalda apoyada; mantén la posición sin rebotar."], ["Escaladores", "3 × 25 s", "3 × 40 s", "Ritmo constante y cadera estable."]]}, "6": {"title": "Sábado · Circuito militar full body", "note": "Básico: 3 rondas · Intermedio: 4 rondas", "items": [["Burpees", "8 rep", "12 rep", "Mantén un ritmo que puedas sostener durante la ronda."], ["Flexiones", "10 rep", "15 rep", "Cuerpo alineado durante toda la repetición."], ["Sentadillas", "15 rep", "20 rep", "Talones apoyados y cadera atrás."], ["Escaladores", "16 total", "20 total", "Alterna rodillas sin elevar la cadera."], ["Plancha", "25 s", "30 s", "Aprieta abdomen y glúteos."], ["Fondos en silla", "10 rep", "15 rep", "Codos hacia atrás y silla totalmente estable."]]}, "0": {"title": "Domingo · Recuperación activa", "note": "Movilidad, estiramiento y recuperación", "items": [["Movilidad de hombros y cadera", "6 min", "8 min", "Movimientos suaves y sin dolor."], ["Estiramiento de piernas", "6 min", "8 min", "Mantén cada posición sin rebotes."], ["Yoga básico", "8 min", "10 min", "Respira con calma; evita forzar los rangos."], ["Caminata o trote suave", "10 min", "15 min", "Ritmo cómodo que te permita mantener conversación."]]}};
+const dayNames={1:"Lun",2:"Mar",3:"Mié",4:"Jue",5:"Vie",6:"Sáb",0:"Dom"};
+let day=(new Date()).getDay(); if(!(day in DATA)) day=1;
+let level="basic";
+let rest=60, remaining=60, tick=null, deferredPrompt=null;
+
+const $=s=>document.querySelector(s);
+const days=$("#days"), list=$("#list"), session=$("#session"), pct=$("#pct"), fill=$("#fill"), clock=$("#clock");
+
+function stateKey(){return `cm45:${day}:${level}`}
+function loadDone(){try{return new Set(JSON.parse(localStorage.getItem(stateKey())||"[]"))}catch{return new Set()}}
+function saveDone(set){localStorage.setItem(stateKey(),JSON.stringify([...set]))}
+
+function renderDays(){
+  days.innerHTML="";
+  [1,2,3,4,5,6,0].forEach(d=>{
+    const b=document.createElement("button"); b.className="day"+(d===day?" active":"");
+    b.textContent=dayNames[d]; b.onclick=()=>{day=d;render()}; days.appendChild(b);
+  });
+}
+
+function render(){
+  renderDays();
+  document.querySelectorAll("[data-level]").forEach(b=>b.classList.toggle("active",b.dataset.level===level));
+  const d=DATA[day], done=loadDone();
+  session.innerHTML=`<h2>${d.title}</h2><p>${d.note}</p>`;
+  list.innerHTML="";
+  d.items.forEach((e,i)=>{
+    const card=document.createElement("article"); card.className="exercise"+(done.has(i)?" done":"");
+    const reps=level==="basic"?e[1]:e[2];
+    card.innerHTML=`<div class="row">
+      <img class="photo" src="d${day}_e${i+1}.webp" alt="Demostración visual de ${e[0]}">
+      <div>
+        <div class="ex-title"><h3>${i+1}. ${e[0]}</h3>
+          <label class="donebox"><input type="checkbox" ${done.has(i)?"checked":""} data-i="${i}"> Hecho</label>
+        </div>
+        <div class="reps">${reps}</div>
+        <div class="tech">${e[3]}</div>
+      </div>
+    </div>`;
+    list.appendChild(card);
+  });
+  document.querySelectorAll(".donebox input").forEach(c=>c.addEventListener("change",()=>{
+    const set=loadDone(),i=Number(c.dataset.i); c.checked?set.add(i):set.delete(i); saveDone(set); render();
+  }));
+  const p=Math.round(done.size/d.items.length*100); pct.textContent=p+"%"; fill.style.width=p+"%";
+}
+
+document.querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>{level=b.dataset.level;render()});
+$("#resetDay").onclick=()=>{if(confirm("¿Reiniciar el progreso de este entrenamiento?")){localStorage.removeItem(stateKey());render()}};
+
+function showTime(){clock.textContent=String(Math.floor(remaining/60)).padStart(2,"0")+":"+String(remaining%60).padStart(2,"0")}
+function stop(){if(tick){clearInterval(tick);tick=null}$("#start").textContent=remaining>0?"▶ Iniciar":"Terminado"}
+function start(){if(tick){stop();return}if(remaining<=0)remaining=rest;$("#start").textContent="⏸ Pausar";tick=setInterval(()=>{
+  remaining--; showTime(); if(remaining<=0){stop(); beep(); if(navigator.vibrate) navigator.vibrate([180,100,180]);}
+},1000)}
+function beep(){try{const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.08;o.start();setTimeout(()=>{o.stop();a.close()},220)}catch{}}
+document.querySelectorAll("[data-sec]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-sec]").forEach(x=>x.classList.remove("active"));b.classList.add("active");rest=Number(b.dataset.sec);remaining=rest;stop();showTime()});
+$("#start").onclick=start; $("#resetTimer").onclick=()=>{remaining=rest;stop();showTime()};
+
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("#install").style.display="block"});
+$("#install").onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$("#install").style.display="none"};
+
+if("serviceWorker" in navigator && location.protocol!=="file:") navigator.serviceWorker.register("./sw.js");
+render(); showTime();
+</script>
+</body></html>
