@@ -96,7 +96,7 @@ function render(){
     const card=document.createElement("article"); card.className="exercise"+(done.has(i)?" done":"");
     const reps=level==="basic"?e[1]:e[2];
     card.innerHTML=`<div class="row">
-      <img class="photo" src="d${day}_e${i+1}.webp" alt="Demostración visual de ${e[0]}">
+      <img class="photo" src="d${day}_e${i+1}.webp?v=3 alt="Demostración visual de ${e[0]}">
       <div>
         <div class="ex-title"><h3>${i+1}. ${e[0]}</h3>
           <label class="donebox"><input type="checkbox" ${done.has(i)?"checked":""} data-i="${i}"> Hecho</label>
